@@ -90,6 +90,11 @@ class PipelineParams(ParamGroup):
         self.debug = False
         super().__init__(parser, "Pipeline Parameters")
 
+class VirtualPipelineParams2():
+    convert_SHs_python = False
+    compute_cov3D_python = False
+    debug = False
+
 class OptimizationParams(ParamGroup):
     def __init__(self, parser):
         self.iterations = 30_000

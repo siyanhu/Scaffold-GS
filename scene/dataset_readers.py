@@ -17,7 +17,8 @@ from tqdm import tqdm
 from typing import NamedTuple
 from colorama import Fore, init, Style
 from scene.colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec2rotmat, \
-    read_extrinsics_binary, read_intrinsics_binary, read_points3D_binary, read_points3D_text
+    read_extrinsics_binary, read_intrinsics_binary, read_points3D_binary, read_points3D_text, \
+    read_extrinsics_text_dof
 from utils.graphics_utils import getWorld2View2, focal2fov, fov2focal
 import numpy as np
 import json
@@ -30,6 +31,8 @@ except:
 from utils.sh_utils import SH2RGB
 from scene.gaussian_model import BasicPointCloud
 import cv2
+
+import root_file_io as fio
 
 
 class CameraInfo(NamedTuple):
@@ -105,8 +108,12 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder):
             assert False, "Colmap camera model not handled: only undistorted datasets (PINHOLE or SIMPLE_PINHOLE cameras) supported!"
         
         # print(f'FovX: {FovX}, FovY: {FovY}')
+        image_path = os.path.join(images_folder, extr.name)
+        if fio.file_exist(image_path) == False:
+            # print("File not exist, ", image_path)
+            continue
 
-        image_path = os.path.join(images_folder, os.path.basename(extr.name))
+        # image_path = os.path.join(images_folder, os.path.basename(extr.name))
         image_name = os.path.basename(image_path).split(".")[0]
         image = Image.open(image_path)
 
@@ -117,6 +124,61 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder):
         cam_infos.append(cam_info)
     sys.stdout.write('\n')
     return cam_infos
+
+
+def readDoFCameras(cam_extrinsics, cam_intrinsics, images_folder=''):
+    # def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder):
+    cam_infos = []
+
+    for idx, key in enumerate(cam_extrinsics):
+        extr = cam_extrinsics[key]
+        intr = cam_intrinsics[extr.camera_id]
+        height = intr.height
+        width = intr.width
+
+        uid = intr.id
+        R = np.transpose(qvec2rotmat(extr.qvec))
+        T = np.array(extr.tvec)
+        if intr.model=="SIMPLE_PINHOLE":
+            focal_length_x = intr.params[0]
+            FovY = focal2fov(focal_length_x, height)
+            FovX = focal2fov(focal_length_x, width)
+        elif intr.model=="PINHOLE":
+            focal_length_x = intr.params[0]
+            focal_length_y = intr.params[1]
+            FovY = focal2fov(focal_length_y, height)
+            FovX = focal2fov(focal_length_x, width)
+        elif intr.model=="RADIAL" or intr.model=='SIMPLE_RADIAL':
+            # focal_length_x = intr.params[0]
+            # focal_length_y = intr.params[1]
+            # FovY = focal2fov(focal_length_y, height)
+            # FovX = focal2fov(focal_length_x, width)
+            # f cx cy k
+            focal_length_x = intr.params[0]
+            cx = intr.params[1]
+            cy = intr.params[2]
+            k = intr.params[3]
+            FovY = focal2fov(focal_length_x, height)
+            FovX = focal2fov(focal_length_x, width)
+        else:
+            assert False, "Colmap camera model not handled: only undistorted datasets (PINHOLE or SIMPLE_PINHOLE or RADICAL cameras) supported!"
+
+        if len(images_folder) > 0:
+            image_path = os.path.join(images_folder, extr.name)
+            if fio.file_exist(image_path) == False:
+                # print("File not exist, ", image_path)
+                continue
+
+        cam_info_image_name = extr.name
+        if len(cam_info_image_name) < 1:
+            cam_info_image_name = str(uid) + '.png'
+        
+        cam_info = CameraInfo(uid=uid, R=R, T=T, FovY=FovY, FovX=FovX, image=None,
+                              image_path='', image_name=cam_info_image_name, width=width, height=height)
+        cam_infos.append(cam_info)
+    sys.stdout.write('\n')
+    return cam_infos
+
 
 def fetchPly(path):
     plydata = PlyData.read(path)
@@ -205,6 +267,48 @@ def readColmapSceneInfo(path, images, eval, lod, llffhold=8):
                            nerf_normalization=nerf_normalization,
                            ply_path=ply_path)
     return scene_info
+
+
+def readDOFSceneInfo(path, model_path, images, eval):
+    
+    combo = model_path.split(fio.sep)
+    model_path = fio.sep.join(combo[:-1])
+
+    train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.txt")
+    train_cam_extrinsics = read_extrinsics_text(train_cameras_extrinsic_file)
+    train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
+    train_cam_intrinsics = read_intrinsics_text(train_cameras_intrinsic_file)
+
+    test_cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+    test_cam_extrinsics = read_extrinsics_text_dof(test_cameras_extrinsic_file)
+    test_cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
+    if fio.file_exist(test_cameras_intrinsic_file) == False:
+        test_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
+    test_cam_intrinsics = read_intrinsics_text(test_cameras_intrinsic_file)
+
+    train_cam_infos_unsorted = readColmapCameras(cam_extrinsics=train_cam_extrinsics, 
+                                                 cam_intrinsics=train_cam_intrinsics, 
+                                                 images_folder=os.path.join(model_path, images))
+    test_cam_infos_unsorted = readDoFCameras(cam_extrinsics=test_cam_extrinsics, 
+                                             cam_intrinsics=test_cam_intrinsics,
+                                             images_folder=os.path.join(path, images))
+    
+    train_raw_cam_infos = sorted(train_cam_infos_unsorted.copy(), key = lambda x : x.image_name)
+    train_cam_infos = [c for idx, c in enumerate(train_raw_cam_infos)]
+    test_cam_infos = [c for idx, c in enumerate(test_cam_infos_unsorted)]
+
+    ply_path = os.path.join(model_path, "sparse/0", "points3D.ply")
+    pcd = fetchPly(ply_path)
+
+    nerf_normalization = getNerfppNorm(train_cam_infos)
+
+    scene_info = SceneInfo(point_cloud=pcd,
+                        train_cameras=train_cam_infos,
+                        test_cameras=test_cam_infos,
+                        nerf_normalization=nerf_normalization,
+                        ply_path=ply_path)
+    return scene_info, os.path.join(path, images)
+
 
 def readCamerasFromTransforms(path, transformsfile, white_background, extension=".png", is_debug=False, undistorted=False):
     cam_infos = []
@@ -332,4 +436,5 @@ def readNerfSyntheticInfo(path, white_background, eval, extension=".png", ply_pa
 sceneLoadTypeCallbacks = {
     "Colmap": readColmapSceneInfo,
     "Blender": readNerfSyntheticInfo,
+    "DOF": readDOFSceneInfo,
 }

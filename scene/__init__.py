@@ -18,6 +18,52 @@ from scene.gaussian_model import GaussianModel
 from arguments import ModelParams
 from utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
 
+class SceneDOF:
+    gaussians : GaussianModel
+    def __init__(self, args : ModelParams, gaussians : GaussianModel, load_iteration=None, shuffle=True, resolution_scales=[1.0]):
+        """
+        :param path: Path to colmap scene main folder.
+        """
+
+        self.model_path = args.model_path
+        self.source_path = args.source_path
+        self.loaded_iter = None
+        self.gaussians = gaussians
+        self.train_cameras = {}
+        self.test_cameras = {}
+
+        if load_iteration:
+            if load_iteration == -1:
+                self.loaded_iter = searchForMaxIteration(os.path.join(self.model_path, "point_cloud"))
+            else:
+                self.loaded_iter = load_iteration
+            print("Loading trained model at iteration {}".format(self.loaded_iter))
+
+        self.train_cameras = {}
+        self.test_cameras = {}
+
+        scene_info, self.gt_dir = sceneLoadTypeCallbacks["DOF"](args.source_path, args.model_path, args.images, args.eval)
+        self.cameras_extent = scene_info.nerf_normalization["radius"]
+
+        for resolution_scale in resolution_scales:
+            print("Loading Training Cameras")
+            self.train_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.train_cameras, resolution_scale, args)
+            print("Loading Test Cameras")
+            # self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args)
+            self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args, for_eval=True)
+
+        if self.loaded_iter:
+            self.gaussians.load_ply(os.path.join(self.model_path,
+                                                           "point_cloud",
+                                                           "iteration_" + str(self.loaded_iter),
+                                                           "point_cloud.ply"))
+    def getTrainCameras(self, scale=1.0):
+        return self.train_cameras[scale]
+
+    def getTestCameras(self, scale=1.0):
+        return self.test_cameras[scale]
+    
+
 class Scene:
 
     gaussians : GaussianModel
