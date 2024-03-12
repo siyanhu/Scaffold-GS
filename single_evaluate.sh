@@ -14,5 +14,5 @@ ratio=1
 # data/scene_stairs/train_full_byorder_85/output_sparse_setting_sc0
 
 # python evaluate.py -s data/scene_stairs/test_full_byorder_59 -m outputs/scene_stairs/train_full_byorder_85/output_sparse_setting_sc0/2024-03-10_22\:02\:10
-# python evaluate_dof.py -s data/scene_stairs/test_full_byorder_59 -m data/scene_stairs/train_full_byorder_85/output_sparse_setting_sc0
-python evaluate_dof.py -s data/scene_stairs/train_full_byorder_85 -m data/scene_stairs/train_full_byorder_85/output_sparse_setting_sc0
+# python evaluate_dof.py -s data/scene_stairs/test_full_byorder_59 -m data/scene_stairs/train_full_byorder_85/output_lod25
+python evaluate_dof.py -s data/scene_stairs/train_full_byorder_85 -m data/scene_stairs/train_full_byorder_85/output_lod25

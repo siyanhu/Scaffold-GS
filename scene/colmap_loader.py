@@ -252,6 +252,7 @@ def read_extrinsics_text(path):
     Taken from https://github.com/colmap/colmap/blob/dev/scripts/python/read_write_model.py
     """
     images = {}
+    print(path)
     with open(path, "r") as fid:
         while True:
             line = fid.readline()

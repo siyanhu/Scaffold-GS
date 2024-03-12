@@ -1,5 +1,5 @@
 scene='scene_stairs/train_full_byorder_85'
-exp_name='output_sparse_setting_sc0'
+exp_name='output_lod0'
 voxel_size=0.001
 update_init_factor=4
 appearance_dim=0

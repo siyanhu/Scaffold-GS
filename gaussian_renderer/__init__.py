@@ -192,8 +192,8 @@ def render_dof(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tens
     Background tensor (bg_color) must be on GPU!
     """
     # xyz, color, opacity, scaling, rot = generate_neural_gaussians(viewpoint_camera, pc, visible_mask, is_training=True)
-    gng_result = generate_neural_gaussians(viewpoint_camera, pc, visible_mask, is_training=True)
-    xyz, color, opacity, scaling, rot, neural_opacity, mask = gng_result
+    gng_result = generate_neural_gaussians(viewpoint_camera, pc, visible_mask, is_training=False)
+    xyz, color, opacity, scaling, rot = gng_result
 
     # Create zero tensor. We will use it to make pytorch return gradients of the 2D (screen-space) means
     screenspace_points = torch.zeros_like(xyz, dtype=pc.get_anchor.dtype, requires_grad=True, device="cuda") + 0

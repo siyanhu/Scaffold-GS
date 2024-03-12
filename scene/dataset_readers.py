@@ -131,6 +131,11 @@ def readDoFCameras(cam_extrinsics, cam_intrinsics, images_folder=''):
     cam_infos = []
 
     for idx, key in enumerate(cam_extrinsics):
+        sys.stdout.write('\r')
+        # the exact output you're looking for:
+        sys.stdout.write("Reading camera {}/{}".format(idx+1, len(cam_extrinsics)))
+        sys.stdout.flush()
+
         extr = cam_extrinsics[key]
         intr = cam_intrinsics[extr.camera_id]
         height = intr.height
@@ -139,6 +144,7 @@ def readDoFCameras(cam_extrinsics, cam_intrinsics, images_folder=''):
         uid = intr.id
         R = np.transpose(qvec2rotmat(extr.qvec))
         T = np.array(extr.tvec)
+
         if intr.model=="SIMPLE_PINHOLE":
             focal_length_x = intr.params[0]
             FovY = focal2fov(focal_length_x, height)
@@ -149,11 +155,6 @@ def readDoFCameras(cam_extrinsics, cam_intrinsics, images_folder=''):
             FovY = focal2fov(focal_length_y, height)
             FovX = focal2fov(focal_length_x, width)
         elif intr.model=="RADIAL" or intr.model=='SIMPLE_RADIAL':
-            # focal_length_x = intr.params[0]
-            # focal_length_y = intr.params[1]
-            # FovY = focal2fov(focal_length_y, height)
-            # FovX = focal2fov(focal_length_x, width)
-            # f cx cy k
             focal_length_x = intr.params[0]
             cx = intr.params[1]
             cy = intr.params[2]
@@ -274,16 +275,40 @@ def readDOFSceneInfo(path, model_path, images, eval):
     combo = model_path.split(fio.sep)
     model_path = fio.sep.join(combo[:-1])
 
-    train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.txt")
-    train_cam_extrinsics = read_extrinsics_text(train_cameras_extrinsic_file)
-    train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
-    train_cam_intrinsics = read_intrinsics_text(train_cameras_intrinsic_file)
+    train_cam_extrinsics = None
+    train_cam_intrinsics = None
+    test_cam_extrinsics = None
+    test_cam_intrinsics = None
 
-    test_cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+    train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.bin")
+    train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.bin")
+    # print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
+
+    if not (fio.file_exist(train_cameras_extrinsic_file) and fio.file_exist(train_cameras_intrinsic_file)):
+        train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.txt")
+        train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
+        # print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
+        if not (fio.file_exist(train_cameras_extrinsic_file) and fio.file_exist(train_cameras_intrinsic_file)):
+            print("No pre-trained model detected at", model_path)
+            sys.exit()
+
+    test_cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
+    test_cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
+    # print(test_cameras_extrinsic_file, test_cameras_intrinsic_file)
+
+    if not (fio.file_exist(test_cameras_extrinsic_file) and fio.file_exist(test_cameras_intrinsic_file)):
+        test_cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.txt")
+        test_cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
+        # print(test_cameras_extrinsic_file, test_cameras_intrinsic_file)
+        if not (fio.file_exist(test_cameras_extrinsic_file) and fio.file_exist(test_cameras_intrinsic_file)):
+            test_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
+            if not (fio.file_exist(test_cameras_extrinsic_file) and fio.file_exist(test_cameras_intrinsic_file)):
+                print("No testing dataset detected at", path)
+                sys.exit()
+
+    train_cam_extrinsics = read_extrinsics_text(train_cameras_extrinsic_file)
+    train_cam_intrinsics = read_intrinsics_text(train_cameras_intrinsic_file)
     test_cam_extrinsics = read_extrinsics_text_dof(test_cameras_extrinsic_file)
-    test_cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
-    if fio.file_exist(test_cameras_intrinsic_file) == False:
-        test_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
     test_cam_intrinsics = read_intrinsics_text(test_cameras_intrinsic_file)
 
     train_cam_infos_unsorted = readColmapCameras(cam_extrinsics=train_cam_extrinsics, 
@@ -297,10 +322,24 @@ def readDOFSceneInfo(path, model_path, images, eval):
     train_cam_infos = [c for idx, c in enumerate(train_raw_cam_infos)]
     test_cam_infos = [c for idx, c in enumerate(test_cam_infos_unsorted)]
 
-    ply_path = os.path.join(model_path, "sparse/0", "points3D.ply")
+    ply_path = os.path.join(model_path, "sparse/0/points3D.ply")
+    bin_path = os.path.join(model_path, "sparse/0/points3D.bin")
+    txt_path = os.path.join(model_path, "sparse/0/points3D.txt")
+    if not os.path.exists(ply_path):
+        print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
+        try:
+            xyz, rgb, _ = read_points3D_binary(bin_path)
+        except:
+            xyz, rgb, _ = read_points3D_text(txt_path)
+        storePly(ply_path, xyz, rgb)
+
+    print(f'start fetching data from ply file')
     pcd = fetchPly(ply_path)
 
-    nerf_normalization = getNerfppNorm(train_cam_infos)
+    nerf_normalization_train = getNerfppNorm(train_cam_infos)
+    nerf_normalization_test = getNerfppNorm(test_cam_infos)
+    nerf_normalization = nerf_normalization_train.copy()
+    # nerf_normalization.update(nerf_normalization_test)
 
     scene_info = SceneInfo(point_cloud=pcd,
                         train_cameras=train_cam_infos,

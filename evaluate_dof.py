@@ -1,9 +1,9 @@
 import torch
-from scene import Scene, SceneDOF
+from scene import SceneDOF
 import os
 from tqdm import tqdm
 from os import makedirs
-from gaussian_renderer import render_dof
+from gaussian_renderer import render_dof, render
 import torchvision
 from utils.image_utils import psnr
 from argparse import ArgumentParser
@@ -73,7 +73,8 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         gt_image_name = view.image_name
 
         start_time = current_timestamp()
-        rendering = render_dof(view, gaussians_na, pipeline, background)["render"]
+        # rendering = render_dof(view, gaussians_na, pipeline, background)["render"]
+        rendering =render_dof(view, gaussians_na, pipeline, background)["render"]
         after_time = current_timestamp()
         # gt = view.original_image[0:3, :, :]
         gt_original_image_path = os.path.join(source_path, 'images', gt_image_name)
