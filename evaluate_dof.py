@@ -3,7 +3,7 @@ from scene import Scene, SceneDOF
 import os
 from tqdm import tqdm
 from os import makedirs
-from gaussian_renderer import render
+from gaussian_renderer import render_dof
 import torchvision
 from utils.image_utils import psnr
 from argparse import ArgumentParser
@@ -73,7 +73,7 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         gt_image_name = view.image_name
 
         start_time = current_timestamp()
-        rendering = render(view, gaussians_na, pipeline, background)["render"]
+        rendering = render_dof(view, gaussians_na, pipeline, background)["render"]
         after_time = current_timestamp()
         # gt = view.original_image[0:3, :, :]
         gt_original_image_path = os.path.join(source_path, 'images', gt_image_name)
@@ -108,7 +108,11 @@ def render_sets_virtual2(dataset : ModelParams, iteration : int, pipeline : Pipe
         print("Cuda current device: ", torch.cuda.current_device())
         print("Cuda is avail: ", torch.cuda.is_available())
         
-        gaussians = GaussianModel(dataset.sh_degree)
+        # gaussians = GaussianModel(dataset.sh_degree)
+        gaussians = GaussianModel(dataset.feat_dim, dataset.n_offsets, dataset.voxel_size, dataset.update_depth, dataset.update_init_factor, dataset.update_hierachy_factor, dataset.use_feat_bank, 
+                              dataset.appearance_dim, dataset.ratio, dataset.add_opacity_dist, dataset.add_cov_dist, dataset.add_color_dist)
+        gaussians.eval()
+
         bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
         pretrain_source = dataset.model_path

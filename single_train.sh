@@ -1,10 +1,11 @@
-scene='mipnerf360/bicycle'
-exp_name='baseline'
+scene='scene_stairs/train_full_byorder_85'
+exp_name='output_sparse_setting_sc0'
 voxel_size=0.001
-update_init_factor=16
+update_init_factor=4
 appearance_dim=0
 ratio=1
-gpu=-1
 
-# example:
-./train.sh -d ${scene} -l ${exp_name} --gpu ${gpu} --voxel_size ${voxel_size} --update_init_factor ${update_init_factor} --appearance_dim ${appearance_dim} --ratio ${ratio}
+./train.sh -d ${scene} \
+-l ${exp_name} \
+--gpu 0 --voxel_size ${voxel_size} --update_init_factor ${update_init_factor} \
+--appearance_dim ${appearance_dim} --ratio ${ratio}

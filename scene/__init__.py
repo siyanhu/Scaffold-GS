@@ -52,11 +52,20 @@ class SceneDOF:
             # self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args)
             self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args, for_eval=True)
 
+        self.gaussians.set_appearance(len(scene_info.train_cameras))
+        self.gaussians.set_appearance(len(scene_info.test_cameras))
+        
         if self.loaded_iter:
-            self.gaussians.load_ply(os.path.join(self.model_path,
+            self.gaussians.load_ply_sparse_gaussian(os.path.join(self.model_path,
                                                            "point_cloud",
                                                            "iteration_" + str(self.loaded_iter),
                                                            "point_cloud.ply"))
+            # self.gaussians.load_mlp_checkpoints(os.path.join(self.model_path,
+            #                                                "point_cloud",
+            #                                                "iteration_" + str(self.loaded_iter)))
+        else:
+            self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent)
+
     def getTrainCameras(self, scale=1.0):
         return self.train_cameras[scale]
 
