@@ -1,7 +1,7 @@
-scene='scene_chess/test_full_byorder_59'
-model='scene_chess/train_full_byorder_85'
+scene='scene_office/test_full_byorder_59'
+model='scene_office/train_full_byorder_85'
 exp_name='output_lod0'
-exp_ts='2024-03-14_13:53:35'
+exp_ts='2024-03-14_17:32:31'
 ratio=1
 
 echo "from " + "$PWD"/outputs/${model}/${exp_name}/${exp_ts}
