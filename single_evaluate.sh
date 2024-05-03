@@ -1,5 +1,5 @@
-scene='scene_chess/test_full_byorder_59'
-model='scene_chess/train_full_byorder_85'
+scene='scene_stairs_7s/test_full_byorder_59'
+model='scene_stairs_7s/train_full_byorder_85'
 exp_name='output_lod0'
 # exp_ts='2024-04-22_12:35:03'
 ratio=1
