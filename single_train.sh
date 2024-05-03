@@ -1,4 +1,4 @@
-scene='scene_office/train_full_byorder_85'
+scene=''
 exp_name='output_lod0'
 voxel_size=0.001
 update_init_factor=4

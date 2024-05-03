@@ -282,7 +282,7 @@ def readDOFSceneInfo(path, model_path, images, eval):
 
     train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.bin")
     train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.bin")
-    # print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
+    print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
 
     if not (fio.file_exist(train_cameras_extrinsic_file) and fio.file_exist(train_cameras_intrinsic_file)):
         train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.txt")
