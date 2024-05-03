@@ -1,5 +1,5 @@
-scene=''
-exp_name='output_lod0'
+scene='scene_GreatCourt_bright/train_full_byorder_85'
+exp_name='output_lod0_seq3'
 voxel_size=0.001
 update_init_factor=4
 appearance_dim=0
