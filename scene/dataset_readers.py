@@ -225,24 +225,28 @@ def readColmapSceneInfo(path, images, eval, lod, llffhold=8):
     cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, reading_dir))
     cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
 
-    if eval:
-        if lod>0:
-            print(f'using lod, using eval')
-            if lod < 50:
-                train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx > lod]
-                test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx <= lod]
-                print(f'test_cam_infos: {len(test_cam_infos)}')
-            else:
-                train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx <= lod]
-                test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx > lod]
+    # if eval:
+    #     if lod>0:
+    #         print(f'using lod, using eval')
+    #         if lod < 50:
+    #             train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx > lod]
+    #             test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx <= lod]
+    #             print(f'test_cam_infos: {len(test_cam_infos)}')
+    #         else:
+    #             train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx <= lod]
+    #             test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx > lod]
 
-        else:
-            train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
-            test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
+    #     else:
+    #         train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+    #         test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
     
-    else:
+    # else:
+    #     train_cam_infos = cam_infos
+    #     test_cam_infos = []
+
+    if eval:
         train_cam_infos = cam_infos
-        test_cam_infos = []
+        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
