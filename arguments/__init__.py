@@ -79,7 +79,6 @@ class ModelParams(ParamGroup):
         self.sample_rate = -1
         
         super().__init__(parser, "Loading Parameters", sentinel)
-        print("!!!!", self.sample_rate)
 
     def extract(self, args):
         g = super().extract(args)
