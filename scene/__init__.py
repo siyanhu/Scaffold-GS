@@ -39,7 +39,7 @@ class SceneDOF:
                 self.loaded_iter = load_iteration
             print("Loading trained model at iteration {}".format(self.loaded_iter))
 
-        scene_info, self.gt_dir = sceneLoadTypeCallbacks["DOF"](args.source_path, args.model_path, args.images, args.eval)
+        scene_info, self.gt_dir = sceneLoadTypeCallbacks["DOF"](args.source_path, args.model_path, args.images, args.eval, args.sample_rate)
         self.cameras_extent = scene_info.nerf_normalization["radius"]
 
         for resolution_scale in resolution_scales:
@@ -93,7 +93,7 @@ class Scene:
         self.test_cameras = {}
 
         if os.path.exists(os.path.join(args.source_path, "sparse")):
-            scene_info = sceneLoadTypeCallbacks["Colmap"](args.source_path, args.images, args.eval, args.lod)
+            scene_info = sceneLoadTypeCallbacks["Colmap"](args.source_path, args.images, args.eval, args.lod, args.sample_rate)
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")
             scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval, ply_path=ply_path)

@@ -209,7 +209,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-def readColmapSceneInfo(path, images, eval, lod, llffhold=8):
+def readColmapSceneInfo(path, images, eval, lod, mainset_sample_rate=0, llffhold=8):
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
@@ -244,9 +244,17 @@ def readColmapSceneInfo(path, images, eval, lod, llffhold=8):
     #     train_cam_infos = cam_infos
     #     test_cam_infos = []
 
-    if eval:
+    if mainset_sample_rate > 1:
+        train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % mainset_sample_rate == 0]
+    else:
         train_cam_infos = cam_infos
+
+    if eval:
         test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold == 0]
+    else:
+        test_cam_infos = []
+
+    
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
@@ -274,7 +282,7 @@ def readColmapSceneInfo(path, images, eval, lod, llffhold=8):
     return scene_info
 
 
-def readDOFSceneInfo(path, model_path, images, eval):
+def readDOFSceneInfo(path, model_path, images, eval, mainset_sample_rate=0):
     
     combo = model_path.split(fio.sep)
     model_path = fio.sep.join(combo[:-1])
@@ -323,8 +331,12 @@ def readDOFSceneInfo(path, model_path, images, eval):
                                              images_folder=os.path.join(path, images))
     
     train_raw_cam_infos = sorted(train_cam_infos_unsorted.copy(), key = lambda x : x.image_name)
+    
     train_cam_infos = [c for idx, c in enumerate(train_raw_cam_infos)]
     test_cam_infos = [c for idx, c in enumerate(test_cam_infos_unsorted)]
+    if mainset_sample_rate > 1:
+        train_cam_infos = [c for idx, c in enumerate(train_cam_infos) if idx % mainset_sample_rate == 0]
+        test_cam_infos = [c for idx, c in enumerate(test_cam_infos) if idx % mainset_sample_rate == 0]
 
     ply_path = os.path.join(model_path, "sparse/0/points3D.ply")
     bin_path = os.path.join(model_path, "sparse/0/points3D.bin")

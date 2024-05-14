@@ -474,7 +474,6 @@ if __name__ == "__main__":
     parser.add_argument("--gpu", type=str, default = '-1')
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
-
     
     # enable logging
     
@@ -490,8 +489,6 @@ if __name__ == "__main__":
         os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
         os.system("echo $CUDA_VISIBLE_DEVICES")
         logger.info(f'using GPU {args.gpu}')
-
-    
 
     try:
         saveRuntimeCode(os.path.join(args.model_path, 'backup'))
