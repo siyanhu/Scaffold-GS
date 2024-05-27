@@ -1,10 +1,10 @@
-scene='scene_atrium/test_full_byorder_59'
-model='scene_atrium/train_full_byorder_85'
+scene='scene_ShopFacade/train_full_patch_85'
+model='scene_ShopFacade/train_full_patch_85'
 
-main_sample_rate=10  # sample 1 image per every _ images.
-exp_name='output_lod0_sr'${main_sample_rate}
+main_sample_rate=2  # sample 1 image per every _ images.
+exp_name='output_lod0_15k_sr'${main_sample_rate}
 
-exp_ts='2024-05-14_14:25:23'
+exp_ts='2024-05-18_07:44:42'
 ratio=1
 
 echo "from " + "$PWD"/outputs/${model}/${exp_name}/${exp_ts}

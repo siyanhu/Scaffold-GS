@@ -6,6 +6,7 @@ from os import makedirs
 from gaussian_renderer import render_dof, render
 import torchvision
 from utils.image_utils import psnr
+from utils.loss_utils import l1_loss, ssim
 from argparse import ArgumentParser
 from arguments import ModelParams, PipelineParams, VirtualPipelineParams2, get_combined_args
 from gaussian_renderer import GaussianModel
@@ -74,7 +75,10 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
 
         start_time = current_timestamp()
         # rendering = render_dof(view, gaussians_na, pipeline, background)["render"]
-        rendering =render_dof(view, gaussians_na, pipeline, background)["render"]
+        render_pkg =render_dof(view, gaussians_na, pipeline, background)
+        rendering = render_pkg["render"]
+        scaling = render_pkg["scaling"]
+
         after_time = current_timestamp()
         # gt = view.original_image[0:3, :, :]
         gt_original_image_path = os.path.join(source_path, 'images', gt_image_name)
@@ -91,12 +95,21 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         
         gt_image_gpu = gt_image.to(device)
         # rendering_gpu = rendering.to(device)
+
+        Ll1 = l1_loss(rendering, gt_image_gpu)
+        ssim_loss = (1.0 - ssim(gt_image_gpu, rendering))
+        scaling_reg = scaling.prod(dim=1).mean()
+        lambda_dssim = 0.2
+        loss = (1.0 - lambda_dssim) * Ll1 + lambda_dssim * ssim_loss + 0.01*scaling_reg
+
+
         psnr_value += psnr(rendering, gt_image_gpu).mean().double()
         psnr_log_value = psnr_value
         if idx > 0:
             psnr_log_value = psnr_log_value / idx
         log_str = "\n[INDEX {}] Rendering: L1LOSS {} PSNR {} TimeElapse {}"\
         .format(gt_image_name, l1_loss_value, psnr_log_value, str(after_time - start_time))
+
         with open(log_path, 'a+') as f:
             f.write(log_str)
     final = "\n[FINAL PSNR {}, L1_loss {}]".format(psnr_value/len(views), l1_loss_value/len(views))

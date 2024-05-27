@@ -157,6 +157,7 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
     rasterizer = GaussianRasterizer(raster_settings=raster_settings)
     
     # Rasterize visible Gaussians to image, obtain their radii (on screen). 
+    print(scaling)
     rendered_image, radii = rasterizer(
         means3D = xyz,
         means2D = screenspace_points,
@@ -202,8 +203,7 @@ def render_dof(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tens
             screenspace_points.retain_grad()
         except:
             pass
-
-
+    
     # Set up rasterization configuration
     tanfovx = math.tan(viewpoint_camera.FoVx * 0.5)
     tanfovy = math.tan(viewpoint_camera.FoVy * 0.5)
@@ -240,6 +240,7 @@ def render_dof(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tens
         "viewspace_points": screenspace_points,
         "visibility_filter" : radii > 0,
         "radii": radii,
+        "scaling": scaling,
         }
 
 
