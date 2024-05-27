@@ -101,18 +101,18 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         scaling_reg = scaling.prod(dim=1).mean()
         lambda_dssim = 0.2
         loss = (1.0 - lambda_dssim) * Ll1 + lambda_dssim * ssim_loss + 0.01*scaling_reg
-
+        lossing = loss.item()
 
         psnr_value += psnr(rendering, gt_image_gpu).mean().double()
         psnr_log_value = psnr_value
         if idx > 0:
             psnr_log_value = psnr_log_value / idx
-        log_str = "\n[INDEX {}] Rendering: L1LOSS {} PSNR {} TimeElapse {}"\
-        .format(gt_image_name, l1_loss_value, psnr_log_value, str(after_time - start_time))
+        log_str = "\n[INDEX {}] Rendering: Loss {} PSNR {} TimeElapse {}"\
+        .format(gt_image_name, lossing, psnr_log_value, str(after_time - start_time))
 
         with open(log_path, 'a+') as f:
             f.write(log_str)
-    final = "\n[FINAL PSNR {}, L1_loss {}]".format(psnr_value/len(views), l1_loss_value/len(views))
+    final = "\n[FINAL PSNR {}, loss {}]".format(psnr_value/len(views), lossing)
     with open(log_path, 'a+') as f:
         f.write(final)
 
