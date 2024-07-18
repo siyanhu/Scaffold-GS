@@ -209,7 +209,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-def readColmapSceneInfo(path, images, eval, lod, mainset_sample_rate=0, llffhold=8):
+def readColmapSceneInfo(path, images, eval, lod, mainset_sample_rate=7, llffhold=8):
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
@@ -246,7 +246,7 @@ def readColmapSceneInfo(path, images, eval, lod, mainset_sample_rate=0, llffhold
 
     if mainset_sample_rate > 1:
         train_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % mainset_sample_rate == 0]
-        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % llffhold != 0]
+        test_cam_infos = [c for idx, c in enumerate(cam_infos) if idx % mainset_sample_rate != 0]
     else:
         train_cam_infos = cam_infos
         test_cam_infos=[]

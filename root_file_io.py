@@ -137,6 +137,15 @@ def createPath(separator, list_of_dir, file_name=""):
         return path_rslt + separator + file_name
 
 
+def getParentDir():
+    current_path = os.path.dirname(os.path.abspath('__file__'))
+    return current_path
+
+def getGrandParentDir():
+    current_path = os.path.dirname(os.path.abspath('__file__'))
+    return os.path.abspath(os.path.join(current_path,os.path.pardir))
+
+
 def traverse_dir(dir, full_path=False, towards_sub=False):
     rslt = list()
     if towards_sub == False:

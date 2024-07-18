@@ -20,3 +20,4 @@ scene_*
 train_scripts.txt
 run_ssh_connections.txt
 *.sh
+sr_models/

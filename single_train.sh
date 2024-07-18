@@ -1,7 +1,7 @@
-scene='scene_ShopFacade/train_full_patch_85'
+scene='scene_fire/train_full_byorder_85'
 
-main_sample_rate=2  # sample 1 image per every _ images.
-exp_name='output_train_exp'${main_sample_rate}
+main_sample_rate=1 # sample 1 image per every _ images.
+exp_name='output_lod0_sfm'
 
 voxel_size=0.001
 update_init_factor=4
