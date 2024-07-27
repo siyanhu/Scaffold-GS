@@ -73,14 +73,14 @@ def filter_extrinsics_text(original_Path, left_tags):
 
 if __name__=='__main__':
     data_dir = fio.createPath(fio.sep, [fio.getParentDir(), 'data'])
-    scene_tags = ['scene_fire']
+    scene_tags = ['scene_fire', 'scene_pumpkin']
     
     for stag in scene_tags:
         scene_dir = fio.createPath(fio.sep, [data_dir, stag, 'train_full_byorder_85', 'images'])
         seq_dir_list = fio.traverse_dir(scene_dir, full_path=True, towards_sub=False)
         seq_dir_list = fio.filter_folder(seq_dir_list, filter_out=False, filter_text='seq')
 
-        save_path_lt = fio.createPath(fio.sep, [data_dir, stag, 'train_full_byorder_85', 'sparse', '0'], 'left_70llp_tags.txt')
+        save_path_lt = fio.createPath(fio.sep, [data_dir, stag, 'train_full_byorder_85', 'sparse', '0'], 'left_90_tags.txt')
         left_image_tags = []
         if fio.file_exist(save_path_lt):
             left_image_tags = read_keep_tags(save_path_lt)
@@ -99,7 +99,7 @@ if __name__=='__main__':
             h = sorted(llp_distribution)
             left = np.percentile(h, [10, 15, 25, 50, 75, 85, 90])
             target = left[0]
-            left_image_tags = filter_keys_by_value(llp_trend, 70)
+            left_image_tags = filter_keys_by_value(llp_trend, target)
             save_keep_tags(save_path_lt, left_image_tags)
             print("saved only ",  str(100 - target), "percent samples, now has", 
                   str(len(left_image_tags)), "from totally ", str(len(llp_distribution)))

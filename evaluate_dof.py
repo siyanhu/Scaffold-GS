@@ -69,6 +69,8 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
 
     psnr_value = 0
     l1_loss_value = 1
+    rd_time_diff = 0.0
+
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
 
         gt_image_name = view.image_name
@@ -105,14 +107,19 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
 
         psnr_value += psnr(rendering, gt_image_gpu).mean().double()
         psnr_log_value = psnr_value
+
+        rd_time_diff += float(after_time - start_time)
+        rd_time_log_diff = float(after_time - start_time)
+
         if idx > 0:
             psnr_log_value = psnr_log_value / idx
         log_str = "\n[INDEX {}] Rendering: Loss {} PSNR {} TimeElapse {}"\
-        .format(gt_image_name, lossing, psnr_log_value, str(after_time - start_time))
+        .format(gt_image_name, lossing, psnr_log_value, str(rd_time_log_diff))
 
         with open(log_path, 'a+') as f:
             f.write(log_str)
-    final = "\n[FINAL PSNR {}, loss {}]".format(psnr_value/len(views), lossing)
+    
+    final = "\n[FINAL PSNR {}, loss {}, average_rd_time {}]".format(float(psnr_value)/float(len(views)), lossing, float(rd_time_diff)/float(len(views)))
     with open(log_path, 'a+') as f:
         f.write(final)
 
