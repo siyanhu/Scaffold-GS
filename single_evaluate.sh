@@ -2,7 +2,7 @@ scene='scene_fire/test_full_byorder_59'
 model='scene_fire/train_full_byorder_85'
 
 main_sample_rate=1  # sample 1 image per every _ images.
-exp_name='output_lod0_deblur_90pnt'
+exp_name='output_lod0_sfm'
 # exp_name='output_lod0'
 
 exp_ts=''

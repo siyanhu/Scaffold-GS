@@ -112,7 +112,7 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
 
         with open(log_path, 'a+') as f:
             f.write(log_str)
-    final = "\n[FINAL PSNR {}, loss {}]".format(psnr_value/len(views), lossing)
+    final = "\n[FINAL PSNR {}, loss {}]".format(float(psnr_value)/float(len(views)), lossing)
     with open(log_path, 'a+') as f:
         f.write(final)
 
