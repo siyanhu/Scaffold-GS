@@ -321,6 +321,8 @@ def readDOFSceneInfo(path, model_path, images, eval, mainset_sample_rate=0):
                 sys.exit()
 
     train_cam_extrinsics = read_extrinsics_text(train_cameras_extrinsic_file)
+    train_cam_extrinsics = train_cam_extrinsics[0]
+    
     train_cam_intrinsics = read_intrinsics_text(train_cameras_intrinsic_file)
     test_cam_extrinsics = read_extrinsics_text_dof(test_cameras_extrinsic_file)
     test_cam_intrinsics = read_intrinsics_text(test_cameras_intrinsic_file)
