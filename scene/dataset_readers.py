@@ -22,6 +22,7 @@ from scene.colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec
 from utils.graphics_utils import getWorld2View2, focal2fov, fov2focal
 import numpy as np
 import json
+import random
 from pathlib import Path
 from plyfile import PlyData, PlyElement
 try:
@@ -321,7 +322,7 @@ def readDOFSceneInfo(path, model_path, images, eval, mainset_sample_rate=0):
                 sys.exit()
 
     train_cam_extrinsics = read_extrinsics_text(train_cameras_extrinsic_file)
-    train_cam_extrinsics = train_cam_extrinsics[0]
+    train_cam_extrinsics = dict(random.sample(list(train_cam_extrinsics.items()), 2))
     
     train_cam_intrinsics = read_intrinsics_text(train_cameras_intrinsic_file)
     test_cam_extrinsics = read_extrinsics_text_dof(test_cameras_extrinsic_file)

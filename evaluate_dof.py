@@ -105,14 +105,12 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         loss = (1.0 - lambda_dssim) * Ll1 + lambda_dssim * ssim_loss + 0.01*scaling_reg
         lossing = loss.item()
 
-        psnr_value += psnr(rendering, gt_image_gpu).mean().double()
-        psnr_log_value = psnr_value
+        psnr_log_value = psnr(rendering, gt_image_gpu).mean().double()
+        psnr_value += psnr_log_value
 
-        rd_time_diff += float(after_time - start_time)
         rd_time_log_diff = float(after_time - start_time)
+        rd_time_diff += rd_time_log_diff
 
-        if idx > 0:
-            psnr_log_value = psnr_log_value / idx
         log_str = "\n[INDEX {}] Rendering: Loss {} PSNR {} TimeElapse {}"\
         .format(gt_image_name, lossing, psnr_log_value, str(rd_time_log_diff))
 
