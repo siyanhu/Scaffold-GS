@@ -70,6 +70,7 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
     psnr_value = 0
     l1_loss_value = 1
     rd_time_diff = 0.0
+    record_min_limit = 20
 
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
 
@@ -105,21 +106,21 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
         loss = (1.0 - lambda_dssim) * Ll1 + lambda_dssim * ssim_loss + 0.01*scaling_reg
         lossing = loss.item()
 
-        psnr_value += psnr(rendering, gt_image_gpu).mean().double()
-        psnr_log_value = psnr_value
+        psnr_log_value = psnr(rendering, gt_image_gpu).mean().double()
 
-        rd_time_diff += float(after_time - start_time)
+        if idx >= record_min_limit:
+            psnr_value += psnr_log_value
+
         rd_time_log_diff = float(after_time - start_time)
+        rd_time_diff += rd_time_log_diff
 
-        if idx > 0:
-            psnr_log_value = psnr_log_value / idx
         log_str = "\n[INDEX {}] Rendering: Loss {} PSNR {} TimeElapse {}"\
         .format(gt_image_name, lossing, psnr_log_value, str(rd_time_log_diff))
 
         with open(log_path, 'a+') as f:
             f.write(log_str)
     
-    final = "\n[FINAL PSNR {}, loss {}, average_rd_time {}]".format(float(psnr_value)/float(len(views)), lossing, float(rd_time_diff)/float(len(views)))
+    final = "\n[FINAL PSNR {}, loss {}, average_rd_time after {} frames {}]".format(float(psnr_value)/float(len(views)), lossing, record_min_limit, float(rd_time_diff)/float(len(views) - 20))
     with open(log_path, 'a+') as f:
         f.write(final)
 
