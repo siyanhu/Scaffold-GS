@@ -70,7 +70,7 @@ def render_set_virtual2(source_path, model_path, name, views, gaussians_na, pipe
     psnr_value = 0
     l1_loss_value = 1
     rd_time_diff = 0.0
-    record_min_limit = 20
+    record_min_limit = 0
 
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
 
