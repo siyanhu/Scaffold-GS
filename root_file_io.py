@@ -13,39 +13,8 @@ from distutils.dir_util import copy_tree
 1. Root directories, and image extensions of the whole project
 '''
 sep = os.sep
-# root = sep.join(['D:', 'foodquality'])
-# root = sep.join(['', 'Users', 'larcuser', 'Google Drive', '_Food Quality Sensing'])
-root = sep.join(['', 'Users', 'siyanhu', 'Documents', 'foodquality'])
-
-prepro_dir_list = [root, 'data_cv_preprocess']
-original_dir_list = [root, 'data_cv_original']
-process_dir_list = [root, 'data_cv_process']
-prepro_dir = sep.join(prepro_dir_list)
-original_dir = sep.join(original_dir_list)
-process_dir = sep.join(process_dir_list)
 
 img_ext_set = ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG', 'bmp', 'BMP']
-color_set = ['green', 'pattern', 'red']
-
-contour_dir = 'contour'
-cropped_dir = 'cropped'
-cropped_bg_dir = 'cropped_background'
-cropped_mask_dir = 'cropped_mask'
-
-hue_hist_dir = 'hist_hue'
-rgb_hist_dir = 'hist_rgb'
-
-objectid_dir = 'objectid'
-stat_dir = 'stat'
-
-hsl_dir = 'hsl'
-hsl_bg_dir = 'hsl_background'
-lum_ref_dir = 'lum_bg'
-
-anno_patches_dir = 'patches'
-anno_patches_xml_dir = 'patches_xml'
-anno_analysis_dir = 'cropped_anno_patches_analysis'
-
 
 '''
 2. File extension
@@ -81,6 +50,16 @@ def filter_ext(filepath_list, filter_out_target=False, ext_set=None):
     return [ele for ele in filepath_list if ele not in unwanted_elems]
 
 
+def filter_folder(fid_folder_list, filter_out=False, filter_text=''):
+    rslt = []
+    for ff in fid_folder_list:
+        if (filter_text in ff) and (filter_out == False):
+            rslt.append(ff)
+        elif (not (filter_text in ff)) and (filter_out == True):
+            rslt.append(ff)
+    return rslt
+
+
 def filter_if_dir(filepath_list, filter_out_target=False):
     #  if isinstance(directory, list):
     rslt = []
@@ -94,17 +73,6 @@ def filter_if_dir(filepath_list, filter_out_target=False):
             # need to return only files
             rslt.append(ff)
     return rslt
-
-
-def filter_folder(fid_folder_list, filter_out=False, filter_text=''):
-    rslt = []
-    for ff in fid_folder_list:
-        if (filter_text in ff) and (filter_out == False):
-            rslt.append(ff)
-        elif (not (filter_text in ff)) and (filter_out == True):
-            rslt.append(ff)
-    return rslt
-
 
 
 def replace_file_ext(filepath, new_ext, full_path=True, replace_save=False):
@@ -252,21 +220,26 @@ def copy_folder(from_dir, to_dir):
 
 
 '''
-5. File savings and readings
+5. File savings and readings: to csv
 '''
-def save_df_to_csv(rslt_df, file_path, mode='a+', encode='utf_8_sig', breakline='', write_head=True):
-    header = list(rslt_df.head())
-    with open(file_path, mode, encoding=encode, newline=breakline) as f:
-        writer = csv.writer(f)
-        if write_head:
-            header = list(rslt_df.head())
-            writer.writerow(header)
-        for index, row in rslt_df.iterrows():
-            writer.writerow(row)
-        f.close()
+def save_df_to_csv(rslt_df, file_path, mode='a+', encode='utf_8', breakline='', write_head=True):
+    try:
+        header = list(rslt_df.head())
+        with open(file_path, mode, encoding=encode, newline=breakline) as f:
+            writer = csv.writer(f)
+            if write_head:
+                header = list(rslt_df.head())
+                writer.writerow(header)
+            for index, row in rslt_df.iterrows():
+                writer.writerow(row)
+            f.close()        
+    except Exception as e:
+        print("write error==>", e)
+        pass
 
 
-def save_dict_to_csv(dict_to_save, file_path, mode='a', encode='utf_8_sig', breakline=''):
+
+def save_dict_to_csv(dict_to_save, file_path, mode='a', encode='utf_8', breakline=''):
     keyword_list = dict_to_save.keys()
     try:
         if not os.path.exists(file_path):
@@ -283,21 +256,45 @@ def save_dict_to_csv(dict_to_save, file_path, mode='a', encode='utf_8_sig', brea
         pass
 
 
-def save_dict_to_txt(dictionary, filename, mode='w', encode='utf_8_sig'):
-    f = open(filename, mode, encoding=encode)
-    f.write(str(dictionary))
-    f.close()
+def save_list_to_csv(list_to_save, file_path, mode='a', encode='utf_8'):
+    try:
+        with open(file_path, mode, encoding=encode, newline='') as f:
+            write = csv.writer(f)
+            rows = [[data] for data in list_to_save]
+            write.writerows(rows)
+    except Exception as e:
+        print("write error==>", e)
+        pass
 
 
-def read_dict_from_txt(filename, mode='r', encode='utf_8_sig'):
-    f = open(filename, mode, encoding=encode)
-    a = f.read()
-    dictionary = eval(a)
-    f.close()
-    return dictionary
+
+'''
+6. File savings and readings: to txt
+'''
+def save_dict_to_txt(dictionary, filename, mode='w', encode='utf_8'):
+    try:
+        f = open(filename, mode, encoding=encode)
+        f.write(str(dictionary))
+        f.close()
+
+    except Exception as e:
+        print("write error==>", e)
+        pass    
 
 
-def save_str_to_txt(str_to_save, file_path, mode='a', encode='utf_8_sig', breakline=''):
+def read_dict_from_txt(filename, mode='r', encode='utf_8'):
+    try:
+        f = open(filename, mode, encoding=encode)
+        a = f.read()
+        dictionary = eval(a)
+        f.close()
+        return dictionary
+    except Exception as e:
+        print("write error==>", e)
+        pass
+
+
+def save_str_to_txt(str_to_save, file_path, mode='a', encode='utf_8', breakline=''):
     try:
         if not os.path.exists(file_path):
             with open(file_path, "w", newline='', encoding='utf-8') as f:
@@ -310,15 +307,29 @@ def save_str_to_txt(str_to_save, file_path, mode='a', encode='utf_8_sig', breakl
         pass
 
 
-def save_list_to_csv(list_to_save, file_path, mode='a', encode='utf_8_sig'):
-    with open(file_path, mode, encoding=encode, newline='') as f:
-        write = csv.writer(f)
-        rows = [[data] for data in list_to_save]
-        write.writerows(rows)
+def save_list_to_txt(list_to_save, file_path, mode='a', encode='utf_8'):
+    try:
+        with open(file_path, mode, encoding=encode, newline='') as f:
+            for item in list_to_save:
+                list_to_save.write(f"\n{item}")
+    except Exception as e:
+        print("write error save_list_to_txt ==>", e)
+        pass      
+
+
+def read_list_from_txt(filename, mode='r', encode='utf_8'):
+    try:
+        with open(filename, mode, encoding=encode) as f:
+            lines = f.readlines()
+            newlines =[x.strip() for x in lines]
+            return newlines
+    except Exception as e:
+        print("read error save_list_to_txt ==>", e)
+        pass   
 
 
 '''
-File Conversions
+7. File Conversions
 '''
 def image_to_dataframe(image_path):
     frame = inspect.currentframe()
