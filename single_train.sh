@@ -1,7 +1,7 @@
-scene='sscene_chess_dslam/train_full_byorder_85'
+scene='scene_stairs/train_full_byorder_85'
 
 main_sample_rate=1 # sample 1 image per every _ images.
-exp_name='output_lod0_sfm_75pnt'
+exp_name='output_lod0_20241002'
 
 voxel_size=0.001
 update_init_factor=4

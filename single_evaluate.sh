@@ -1,5 +1,5 @@
-scene='7scenes/scene_fire/test_full_byorder_59'
-model='7scenes/scene_fire/train_full_byorder_85'
+scene='scene_stairs/test_full_byorder_59'
+model='scene_stairs/train_full_byorder_85'
 
 main_sample_rate=1  # sample 1 image per every _ images.
 exp_name='output_lod0_sfm'

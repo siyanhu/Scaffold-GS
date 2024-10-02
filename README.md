@@ -3,9 +3,19 @@
 [Tao Lu](https://github.com/inspirelt), [Mulin Yu](https://scholar.google.com/citations?user=w0Od3hQAAAAJ), [Linning Xu](https://eveneveno.github.io/lnxu), [Yuanbo Xiangli](https://kam1107.github.io/), [Limin Wang](https://wanglimin.github.io/), [Dahua Lin](http://dahua.site/), [Bo Dai](https://daibo.info/) <br />
 
 
-[[`Project Page`](https://city-super.github.io/scaffold-gs/)][[`arxiv`](https://arxiv.org/abs/2312.00109)]
+[[`Project Page`](https://city-super.github.io/scaffold-gs/)][[`arxiv`](https://arxiv.org/abs/2312.00109)][[`Viewer`](https://drive.google.com/file/d/17nPVnRRxO4zMQJ_fKHm13HzvD0wUZ8XF/view?usp=sharing)]
 
 ## News
+
+**[2024.09.25]** 🎈We propose **Octree-AnyGS**, a general anchor-based framework that supports explicit Gaussians (2D-GS, 3D-GS) and neural Gaussians (Scaffold-GS). Additionally, **Octree-GS** has been adapted to the aforementioned Gaussian primitives, enabling Level-of-Detail representation for large-scale scenes. This framework holds potential for application to other Gaussian-based methods, with relevant SIBR visualizations forthcoming.(https://github.com/city-super/Octree-AnyGS)
+
+**[2024.05.28]**  We update the [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) to conform to the file structure at training.
+
+**[2024.04.05]**  Scaffold-GS is selected as a 🎈**highlight** in CVPR2024.
+
+**[2024.03.27]**  🎈We release [Octree-GS](https://city-super.github.io/octree-gs), supporting an explicit *LOD* representation, rendering faster in large-scale scene with high quality.
+
+**[2024.03.26]**  🎈We release [GSDF](https://city-super.github.io/GSDF/), which improves rendering and reconstruction quality simultaneously.
 
 **[2024.02.27]**  Accepted to [CVPR 2024](https://cvpr.thecvf.com/).
 
@@ -14,6 +24,10 @@
 **[2024.01.22]** 🎈👀 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
 **[2023.12.10]** We release the code.
+
+## TODO List
+- [ ] Explore on removing the MLP module
+- [ ] Improve the training configuration system
 
 ## Overview
 
@@ -163,6 +177,39 @@ python metrics.py -m <path to trained model> # Compute error metrics on renderin
 
 The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) for Scaffold-GS is available now. 
 
+Recommended dataset structure in the source path location:
+
+```
+<location>
+|---sparse
+    |---0
+        |---cameras.bin
+        |---images.bin
+        |---points3D.bin
+```
+
+or
+
+```
+<location>
+|---points3D.ply
+|---transforms.json
+```
+
+Recommended checkpoint  structure in the model path location:
+
+```
+<location>
+|---point_cloud
+|   |---point_cloud.ply
+|   |---color_mlp.pt
+|   |---cov_mlp.pt
+|   |---opacity_mlp.pt
+(|   |---embedding_appearance.pt)
+|---cfg_args
+|---cameras.json
+(|---input.ply)
+```
 
 
 ## Contact
@@ -175,13 +222,12 @@ The [viewer](https://github.com/city-super/Scaffold-GS/tree/main/SIBR_viewers) f
 If you find our work helpful, please consider citing:
 
 ```bibtex
-@misc{scaffoldgs,
-      title={Scaffold-GS: Structured 3D Gaussians for View-Adaptive Rendering}, 
-      author={Tao Lu and Mulin Yu and Linning Xu and Yuanbo Xiangli and Limin Wang and Dahua Lin and Bo Dai},
-      year={2023},
-      eprint={2312.00109},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+@inproceedings{scaffoldgs,
+  title={Scaffold-gs: Structured 3d gaussians for view-adaptive rendering},
+  author={Lu, Tao and Yu, Mulin and Xu, Linning and Xiangli, Yuanbo and Wang, Limin and Lin, Dahua and Dai, Bo},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={20654--20664},
+  year={2024}
 }
 ```
 

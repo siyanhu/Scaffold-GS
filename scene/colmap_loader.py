@@ -247,7 +247,7 @@ def read_intrinsics_binary(path_to_model_file):
     return cameras
 
 
-def read_extrinsics_text(path):
+def read_extrinsics_text(path, fortest=False):
     """
     Taken from https://github.com/colmap/colmap/blob/dev/scripts/python/read_write_model.py
     """
@@ -265,14 +265,15 @@ def read_extrinsics_text(path):
                 tvec = np.array(tuple(map(float, elems[5:8])))
                 camera_id = int(elems[8])
                 image_name = elems[9]
-                elems = fid.readline().split()
-                xys = np.column_stack([tuple(map(float, elems[0::3])),
-                                       tuple(map(float, elems[1::3]))])
-                point3D_ids = np.array(tuple(map(int, elems[2::3])))
-                images[image_id] = Image(
-                    id=image_id, qvec=qvec, tvec=tvec,
-                    camera_id=camera_id, name=image_name,
-                    xys=xys, point3D_ids=point3D_ids)
+                if fortest == False:
+                    elems = fid.readline().split()
+                    xys = np.column_stack([tuple(map(float, elems[0::3])),
+                                        tuple(map(float, elems[1::3]))])
+                    point3D_ids = np.array(tuple(map(int, elems[2::3])))
+                    images[image_id] = Image(
+                        id=image_id, qvec=qvec, tvec=tvec,
+                        camera_id=camera_id, name=image_name,
+                        xys=xys, point3D_ids=point3D_ids)
     return images
 
 

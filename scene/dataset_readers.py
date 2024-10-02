@@ -297,10 +297,9 @@ def readDOFSceneInfo(path, model_path, images, eval, mainset_sample_rate=0):
 
     train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.bin")
     train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.bin")
-    print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
 
     if not (fio.file_exist(train_cameras_extrinsic_file) and fio.file_exist(train_cameras_intrinsic_file)):
-        train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images.txt")
+        train_cameras_extrinsic_file = os.path.join(model_path, "sparse/0", "images_0.txt")
         train_cameras_intrinsic_file = os.path.join(model_path, "sparse/0", "cameras.txt")
         # print(train_cameras_extrinsic_file, train_cameras_intrinsic_file)
         if not (fio.file_exist(train_cameras_extrinsic_file) and fio.file_exist(train_cameras_intrinsic_file)):
@@ -358,7 +357,7 @@ def readDOFSceneInfo(path, model_path, images, eval, mainset_sample_rate=0):
     pcd = fetchPly(ply_path)
 
     nerf_normalization_train = getNerfppNorm(train_cam_infos)
-    nerf_normalization_test = getNerfppNorm(test_cam_infos)
+    # nerf_normalization_test = getNerfppNorm(test_cam_infos)
     nerf_normalization = nerf_normalization_train.copy()
     # nerf_normalization.update(nerf_normalization_test)
 
